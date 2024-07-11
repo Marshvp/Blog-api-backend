@@ -1,5 +1,5 @@
 const passport = require('passport')
-const jwtStrategy = require('passport-jwt').Strategy
+const JWTStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('../models/users')
 const bcrypt = require('bcryptjs')
@@ -9,14 +9,14 @@ const secretKey = process.env.JWT_SECRET
 
 
 const options = {
-    jtwFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: secretKey,
     algorithms: ['HS256']
 };
 
-const strategy = new jwtStrategy(options, (payload, done) => {
+const strategy = new JWTStrategy(options, (payload, done) => {
 
-    User.findById(payload.id)
+    User.findById({ _id: payload.id })
         .then((user) => {
             if (user) {
                 return done(null, user)
@@ -27,6 +27,6 @@ const strategy = new jwtStrategy(options, (payload, done) => {
         .catch(err => done(err, null))
 })
 
-module.exports = (passport) => {
-    passport.use(strategy)
-};
+passport.use(strategy)
+
+module.exports = passport
